@@ -94,9 +94,52 @@ This is a full-stack web application that provides a real-time network topology 
 - **Optional Variables**: Node environment settings for optimization
 - **Port Configuration**: Defaults to standard HTTP ports with WebSocket support
 
+## Recent Changes
+
+- **July 05, 2025**: Added Tailscale API integration with real-time data synchronization
+- **July 05, 2025**: Created comprehensive setup documentation and environment configuration
+- **July 05, 2025**: Added Docker containerization for easy deployment
+- **July 05, 2025**: Implemented refresh functionality to sync with live Tailscale networks
+- **July 05, 2025**: Set dark mode as default theme as requested by user
+
+## Setup Instructions
+
+### Environment Variables Required
+
+The application requires these environment variables to connect to your Tailscale network:
+
+```
+TAILSCALE_API_KEY=your_tailscale_api_key_here
+TAILSCALE_TAILNET=your_tailnet_name
+```
+
+### Getting Your Tailscale API Key
+
+1. Visit [Tailscale Admin Console](https://login.tailscale.com/admin)
+2. Go to Settings → Keys
+3. Generate API Key with scopes: `devices:read`, `devices:write`, `network:read`
+4. Add the key to your environment variables
+
+### Development Setup
+
+1. Copy `.env.example` to `.env`
+2. Add your Tailscale API credentials
+3. Run `npm install` then `npm run dev`
+4. Access application at http://localhost:5000
+
+### Production Deployment Options
+
+- **Replit**: Set secrets in Replit environment and deploy
+- **Docker**: `docker build -t tailscale-dashboard . && docker run -p 5000:5000 --env-file .env tailscale-dashboard`
+- **Docker Compose**: `docker-compose up -d` (edit docker-compose.yml first)
+
+### Fallback Mode
+
+Without API credentials, the application runs with sample data for development and demonstration purposes.
+
 ## Changelog
 
-- July 05, 2025. Initial setup
+- July 05, 2025. Initial setup with real Tailscale integration
 
 ## User Preferences
 

@@ -193,11 +193,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Start periodic simulation of network changes
+  // Refresh data from Tailscale API
+  app.post("/api/network/refresh", async (req, res) => {
+    try {
+      await storage.refreshFromTailscale();
+      
+      // Get updated topology
+      const topology = await storage.getNetworkTopology();
+      
+      // Broadcast updates to all clients
+      broadcastUpdate({ type: 'initial_topology', data: topology });
+      
+      res.json({ message: "Network data refreshed successfully", topology });
+    } catch (error) {
+      console.error('Failed to refresh from Tailscale:', error);
+      res.status(500).json({ 
+        error: "Failed to refresh network data", 
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Start periodic simulation of network changes (only if not using real Tailscale data)
   setInterval(async () => {
     try {
       const devices = await storage.getDevices();
       if (devices.length === 0) return;
+      
+      // Only simulate if we're not using real Tailscale data
+      if (process.env.TAILSCALE_API_KEY && process.env.TAILSCALE_TAILNET) {
+        return; // Skip simulation when using real data
+      }
       
       // Randomly change device status
       if (Math.random() < 0.3) { // 30% chance

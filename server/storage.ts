@@ -1,4 +1,5 @@
 import { devices, connections, networkStats, type Device, type InsertDevice, type Connection, type InsertConnection, type NetworkStats, type NetworkTopology } from "@shared/schema";
+import { getTailscaleClient, isTailscaleConfigured } from "./tailscale";
 
 export interface IStorage {
   // Device operations
@@ -45,6 +46,69 @@ export class MemStorage implements IStorage {
   }
 
   private async initializeSampleData() {
+    // Try to load from Tailscale API first
+    if (isTailscaleConfigured()) {
+      try {
+        await this.syncWithTailscale();
+        console.log('Successfully synchronized with Tailscale API');
+        return;
+      } catch (error) {
+        console.error('Failed to sync with Tailscale API:', error);
+        console.log('Falling back to sample data');
+      }
+    } else {
+      console.log('Tailscale API not configured. Using sample data for development.');
+    }
+
+    // Fallback to sample data if Tailscale API is not available
+    await this.loadSampleData();
+  }
+
+  private async syncWithTailscale(): Promise<void> {
+    const client = getTailscaleClient();
+    if (!client) {
+      throw new Error('Tailscale client not available');
+    }
+
+    const tailscaleDevices = await client.getDevices();
+    const stats = client.generateNetworkStats(tailscaleDevices);
+
+    // Clear existing data
+    this.devices.clear();
+    this.connections.clear();
+    this.currentDeviceId = 1;
+    this.currentConnectionId = 1;
+
+    // Convert and store devices
+    const coordinatorDevice = tailscaleDevices.find(d => d.tags?.includes('coordinator'));
+    let coordinator: Device | null = null;
+
+    for (const tailscaleDevice of tailscaleDevices) {
+      const deviceData = client.convertToInternalDevice(tailscaleDevice);
+      const device = await this.createDevice(deviceData);
+      
+      if (device.isCoordinator) {
+        coordinator = device;
+      }
+    }
+
+    // Create connections (simplified hub topology if coordinator exists)
+    if (coordinator) {
+      const otherDevices = Array.from(this.devices.values()).filter(d => !d.isCoordinator);
+      for (const device of otherDevices) {
+        await this.createConnection({
+          fromDeviceId: coordinator.id,
+          toDeviceId: device.id,
+          status: device.status === "connected" ? "active" : "inactive",
+        });
+      }
+    }
+
+    // Update network stats
+    this.networkStats = stats;
+  }
+
+  private async loadSampleData(): Promise<void> {
     // Create coordinator device
     const coordinator = await this.createDevice({
       name: "coordinator",
@@ -175,9 +239,17 @@ export class MemStorage implements IStorage {
   async createDevice(insertDevice: InsertDevice): Promise<Device> {
     const id = this.currentDeviceId++;
     const device: Device = {
-      ...insertDevice,
       id,
+      name: insertDevice.name,
+      hostname: insertDevice.hostname,
+      tailscaleId: insertDevice.tailscaleId,
+      ipAddress: insertDevice.ipAddress,
+      deviceType: insertDevice.deviceType,
+      os: insertDevice.os,
+      status: insertDevice.status,
       lastSeen: new Date(),
+      tags: insertDevice.tags || [],
+      isCoordinator: insertDevice.isCoordinator || false,
       x: Math.random() * 800 + 100,
       y: Math.random() * 600 + 100,
     };
@@ -197,10 +269,14 @@ export class MemStorage implements IStorage {
   async deleteDevice(id: number): Promise<void> {
     this.devices.delete(id);
     // Also delete related connections
-    for (const [connId, conn] of this.connections.entries()) {
+    const connectionsToDelete = [];
+    for (const [connId, conn] of Array.from(this.connections.entries())) {
       if (conn.fromDeviceId === id || conn.toDeviceId === id) {
-        this.connections.delete(connId);
+        connectionsToDelete.push(connId);
       }
+    }
+    for (const connId of connectionsToDelete) {
+      this.connections.delete(connId);
     }
   }
 
@@ -262,6 +338,15 @@ export class MemStorage implements IStorage {
     const stats = await this.getNetworkStats();
     
     return { devices, connections, stats };
+  }
+
+  // Add method to refresh data from Tailscale API
+  async refreshFromTailscale(): Promise<void> {
+    if (!isTailscaleConfigured()) {
+      throw new Error('Tailscale API not configured');
+    }
+    
+    await this.syncWithTailscale();
   }
 }
 

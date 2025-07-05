@@ -60,6 +60,6 @@ export interface NetworkTopology {
 }
 
 export interface DeviceUpdate {
-  type: 'device_status' | 'device_connected' | 'device_disconnected' | 'stats_updated';
-  data: Device | NetworkStats;
+  type: 'device_status' | 'device_connected' | 'device_disconnected' | 'stats_updated' | 'initial_topology';
+  data: Device | NetworkStats | NetworkTopology;
 }

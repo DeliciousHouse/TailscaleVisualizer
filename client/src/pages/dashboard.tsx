@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search, Bell, Sun, Moon, Network, Zap } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Search, Bell, Sun, Moon, Network, Zap, RefreshCw } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,9 +20,28 @@ export default function Dashboard() {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationCount, setNotificationCount] = useState(3);
+  const { toast } = useToast();
 
   const { data: topology, refetch } = useQuery<NetworkTopologyType>({
     queryKey: ["/api/network/topology"],
+  });
+
+  const refreshMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/network/refresh"),
+    onSuccess: () => {
+      toast({
+        title: "Network Refreshed",
+        description: "Successfully updated network data from Tailscale API",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/network/topology"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Refresh Failed", 
+        description: error.message || "Failed to refresh network data",
+        variant: "destructive",
+      });
+    },
   });
 
   const { isConnected, lastMessage } = useWebSocket();
@@ -64,7 +85,7 @@ export default function Dashboard() {
               <h1 className="text-xl font-semibold">Tailscale Network</h1>
             </div>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>my-tailnet.ts.net</span>
+              <span>{topology?.devices?.find(d => d.isCoordinator)?.hostname || 'demo-tailnet.ts.net'}</span>
               <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-connected-green' : 'bg-error-red'}`} />
               <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
             </div>
@@ -80,6 +101,16 @@ export default function Dashboard() {
                 className="pl-9 w-64"
               />
             </div>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => refreshMutation.mutate()}
+              disabled={refreshMutation.isPending}
+              title="Refresh from Tailscale API"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshMutation.isPending ? 'animate-spin' : ''}`} />
+            </Button>
             
             <Button
               variant="outline"

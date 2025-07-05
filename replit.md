@@ -96,8 +96,11 @@ This is a full-stack web application that provides a real-time network topology 
 
 ## Recent Changes
 
+- **July 05, 2025**: Converted to Docker-first application with port 6000
+- **July 05, 2025**: Created complete Grafana monitoring stack integration
+- **July 05, 2025**: Added Prometheus metrics endpoint for monitoring
 - **July 05, 2025**: Added Tailscale API integration with real-time data synchronization
-- **July 05, 2025**: Created comprehensive setup documentation and environment configuration
+- **July 05, 2025**: Created comprehensive Docker deployment documentation
 - **July 05, 2025**: Added Docker containerization for easy deployment
 - **July 05, 2025**: Implemented refresh functionality to sync with live Tailscale networks
 - **July 05, 2025**: Set dark mode as default theme as requested by user
@@ -124,8 +127,8 @@ TAILSCALE_TAILNET=your_tailnet_name
 
 1. Copy `.env.example` to `.env`
 2. Add your Tailscale API credentials
-3. Run `npm install` then `npm run dev`
-4. Access application at http://localhost:5000
+3. Run `./docker-start.sh`
+4. Access application at http://localhost:6000
 
 ### Production Deployment Options
 

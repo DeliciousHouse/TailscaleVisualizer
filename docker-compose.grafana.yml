@@ -5,7 +5,7 @@ services:
   tailscale-dashboard:
     build: .
     ports:
-      - "5000:5000"
+      - "6000:6000"
     environment:
       - TAILSCALE_API_KEY=${TAILSCALE_API_KEY}
       - TAILSCALE_TAILNET=${TAILSCALE_TAILNET}
@@ -67,6 +67,8 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
+    depends_on:
+      - tailscale-dashboard
     restart: unless-stopped
 
 volumes:

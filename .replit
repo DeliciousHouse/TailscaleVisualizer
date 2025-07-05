@@ -10,16 +10,7 @@ deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[[ports]]
-localPort = 6000
-externalPort = 6000
-
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -41,3 +32,7 @@ waitForPort = 5000
 
 [objectStorage]
 defaultBucketID = "replit-objstore-1d9aacd0-8c1b-4054-a739-9b5461f31945"
+
+[[ports]]
+localPort = 5000
+externalPort = 6000

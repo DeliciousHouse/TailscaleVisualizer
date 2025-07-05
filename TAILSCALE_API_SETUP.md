@@ -3,6 +3,8 @@
 ## Current Issue
 Your API key is being recognized but lacks the required permissions to access device information.
 
+**Error**: `"calling actor does not have enough permissions to perform this function"`
+
 ## Step-by-Step Solution
 
 ### 1. Delete Your Current API Key
@@ -12,16 +14,26 @@ Your API key is being recognized but lacks the required permissions to access de
 
 ### 2. Create a New API Key with Correct Permissions
 
-1. Click **"Generate API Key"**
-2. **IMPORTANT**: Check these specific scopes:
-   - ✅ `devices` - Full access (includes read and write)
-   - ✅ `dns` - Read access (optional but recommended)
-   - ✅ `routes` - Read access (optional but recommended)
+**CRITICAL**: The Tailscale API interface may show different options depending on your account type. Look for these **exact** permission names:
 
-   OR if you see more granular options:
+**Option A - If you see broad scopes:**
+1. Click **"Generate API Key"**
+2. Check **ALL** of these scopes:
+   - ✅ `devices` - Full access (this is the critical one!)
+   - ✅ `dns` - Read access
+   - ✅ `routes` - Read access
+   - ✅ `acls` - Read access (if available)
+
+**Option B - If you see granular scopes:**
+1. Click **"Generate API Key"**
+2. Check these specific scopes:
    - ✅ `devices:read` - Read device information
    - ✅ `devices:write` - Update device settings
    - ✅ `network:read` - Read network topology
+
+**Option C - If you see "All" option:**
+1. Simply select **"All"** permissions for testing
+2. This ensures no permission issues
 
 3. Set expiration (90 days is recommended for testing)
 4. Click **"Generate"**

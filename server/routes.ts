@@ -222,6 +222,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug endpoint to test API key permissions
+  app.get("/api/debug/tailscale", async (req, res) => {
+    try {
+      const { getTailscaleClient } = await import("./tailscale");
+      const client = getTailscaleClient();
+      
+      if (!client) {
+        return res.json({
+          status: "not_configured",
+          message: "Tailscale API not configured",
+          hasApiKey: !!process.env.TAILSCALE_API_KEY,
+          hasTailnet: !!process.env.TAILSCALE_TAILNET,
+          tailnet: process.env.TAILSCALE_TAILNET || "not set"
+        });
+      }
+
+      // Test API call
+      const devices = await client.getDevices();
+      res.json({
+        status: "success",
+        message: "API key working correctly",
+        deviceCount: devices.length,
+        devices: devices.map(d => ({
+          name: d.name,
+          os: d.os,
+          online: d.online
+        }))
+      });
+    } catch (error: any) {
+      res.json({
+        status: "error",
+        message: error.message,
+        type: error.message.includes('403') ? 'permission_denied' : 
+              error.message.includes('401') ? 'unauthorized' : 'unknown'
+      });
+    }
+  });
+
   // Metrics endpoint for Prometheus/Grafana
   app.get("/metrics", async (req, res) => {
     try {

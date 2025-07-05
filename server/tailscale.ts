@@ -83,10 +83,33 @@ export class TailscaleClient {
   }
 
   async getDevices(): Promise<TailscaleDevice[]> {
-    const response = await this.makeRequest<TailscaleApiResponse>(
-      `/tailnet/${this.tailnet}/devices`,
-    );
-    return response.devices;
+    try {
+      const response = await this.makeRequest<TailscaleApiResponse>(
+        `/tailnet/${this.tailnet}/devices`,
+      );
+      return response.devices;
+    } catch (error: any) {
+      // Try alternative endpoint formats
+      if (error.message?.includes('403')) {
+        console.log('\n🔄 Trying alternative API endpoint formats...');
+        
+        // Try without .ts.net suffix
+        const simpleTailnet = this.tailnet.replace('.ts.net', '');
+        console.log(`Attempting with tailnet: ${simpleTailnet}`);
+        
+        try {
+          const response = await this.makeRequest<TailscaleApiResponse>(
+            `/tailnet/${simpleTailnet}/devices`,
+          );
+          console.log('✅ Success with simplified tailnet name!');
+          return response.devices;
+        } catch (altError) {
+          console.log('❌ Alternative endpoint also failed');
+        }
+      }
+      
+      throw error;
+    }
   }
 
   async getDevice(deviceId: string): Promise<TailscaleDevice> {

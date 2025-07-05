@@ -120,6 +120,7 @@ This is a full-stack web application that provides a real-time network topology 
 - **July 05, 2025**: Added Docker containerization for easy deployment
 - **July 05, 2025**: Implemented refresh functionality to sync with live Tailscale networks
 - **July 05, 2025**: Set dark mode as default theme as requested by user
+- **July 05, 2025**: Added comprehensive ACL (Access Control List) configuration documentation for Tailscale API setup
 
 ## Setup Instructions
 

@@ -65,9 +65,30 @@ export class MemStorage implements IStorage {
         await this.syncWithTailscale();
         console.log("Successfully synchronized with Tailscale API");
         return;
-      } catch (error) {
-        console.error("Failed to sync with Tailscale API:", error);
-        console.log("Falling back to sample data");
+      } catch (error: any) {
+        if (error.message?.includes('403')) {
+          console.error("\n🔐 TAILSCALE API ERROR: 403 Forbidden");
+          console.error("Your API key lacks required permissions.");
+          console.error("\n✅ SOLUTION:");
+          console.error("1. Visit: https://login.tailscale.com/admin/settings/keys");
+          console.error("2. Delete your current API key");
+          console.error("3. Create new API key with these scopes:");
+          console.error("   - devices:read");
+          console.error("   - devices:write"); 
+          console.error("   - network:read");
+          console.error("4. Update your TAILSCALE_API_KEY environment variable");
+          console.error("5. Restart the application\n");
+        } else if (error.message?.includes('401')) {
+          console.error("\n🔑 TAILSCALE API ERROR: 401 Unauthorized");
+          console.error("Invalid API key or tailnet name.");
+          console.error("\n✅ SOLUTION:");
+          console.error("1. Check TAILSCALE_API_KEY is correct");
+          console.error("2. Check TAILSCALE_TAILNET matches your organization name");
+          console.error("3. Verify API key is not expired\n");
+        } else {
+          console.error("Failed to sync with Tailscale API:", error);
+        }
+        console.log("Falling back to sample data for development");
       }
     } else {
       console.log(

@@ -56,8 +56,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Serve the app on port 6000 (configurable via environment)
-  const port = process.env.PORT || 6000;
+  // Serve the app on port 5000 (configurable via environment)
+  const port = process.env.PORT || 5000;
   server.listen(
     {
       port,

@@ -107,6 +107,11 @@ This is a full-stack web application that provides a real-time network topology 
 
 ## Recent Changes
 
+- **July 05, 2025**: Fixed application startup issues and port configuration conflicts
+- **July 05, 2025**: Resolved "port already in use" error by clearing stuck processes
+- **July 05, 2025**: Updated application to run on port 5000 to match Replit workflow configuration
+- **July 05, 2025**: Verified API endpoints and WebSocket connections are working properly
+- **July 05, 2025**: Confirmed application serves both frontend and backend correctly
 - **July 05, 2025**: Converted to Docker-first application with port 6000
 - **July 05, 2025**: Created complete Grafana monitoring stack integration
 - **July 05, 2025**: Added Prometheus metrics endpoint for monitoring

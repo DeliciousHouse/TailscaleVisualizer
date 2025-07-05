@@ -46,6 +46,14 @@ export class TailscaleClient {
     options: RequestInit = {},
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    
+    // Debug logging
+    console.log(`\n🔍 Tailscale API Request Debug:`);
+    console.log(`URL: ${url}`);
+    console.log(`Method: ${options.method || 'GET'}`);
+    console.log(`Tailnet: ${this.tailnet}`);
+    console.log(`API Key: ${this.apiKey.substring(0, 10)}...`);
+    
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -56,8 +64,18 @@ export class TailscaleClient {
     });
 
     if (!response.ok) {
+      // Get detailed error information
+      let errorDetails = '';
+      try {
+        const errorBody = await response.text();
+        errorDetails = errorBody;
+        console.error(`Error Response Body: ${errorBody}`);
+      } catch (e) {
+        console.error('Could not read error response body');
+      }
+      
       throw new Error(
-        `Tailscale API error: ${response.status} ${response.statusText}`,
+        `Tailscale API error: ${response.status} ${response.statusText}${errorDetails ? ` - ${errorDetails}` : ''}`,
       );
     }
 

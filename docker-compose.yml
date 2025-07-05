@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - "6000:5000"
+      - "6000:3000"
     environment:
       - NODE_ENV=production
       - TAILSCALE_API_KEY=${TAILSCALE_API_KEY}
@@ -12,7 +12,7 @@ services:
       - DATABASE_URL=${DATABASE_URL:-}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/network/stats"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/network/stats"]
       interval: 30s
       timeout: 10s
       retries: 3

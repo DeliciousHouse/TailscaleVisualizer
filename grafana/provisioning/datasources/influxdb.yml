@@ -1,0 +1,21 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: tailscale-monitoring
+      defaultBucket: tailscale-metrics
+      httpMode: POST
+    secureJsonData:
+      token: ${INFLUXDB_TOKEN}
+    isDefault: true
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false

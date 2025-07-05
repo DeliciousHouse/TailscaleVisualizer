@@ -1,0 +1,113 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Tailscale Network Dashboard",
+    "description": "Real-time monitoring of Tailscale network topology and device status",
+    "tags": ["tailscale", "network", "monitoring"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Network Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "tailscale_total_devices",
+            "legendFormat": "Total Devices"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "displayMode": "list",
+              "orientation": "horizontal"
+            },
+            "mappings": [],
+            "thresholds": {
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Device Status Distribution",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "tailscale_devices_by_status",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Device Status Over Time",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "tailscale_online_devices",
+            "legendFormat": "Online"
+          },
+          {
+            "expr": "tailscale_offline_devices", 
+            "legendFormat": "Offline"
+          },
+          {
+            "expr": "tailscale_unstable_devices",
+            "legendFormat": "Unstable"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Connection Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "tailscale_device_info",
+            "legendFormat": "Device Info"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      }
+    ],
+    "version": 1
+  }
+}

@@ -214,6 +214,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Metrics endpoint for Prometheus/Grafana
+  app.get('/metrics', async (req, res) => {
+    try {
+      const stats = await storage.getNetworkStats();
+      const devices = await storage.getDevices();
+      
+      // Generate Prometheus metrics format
+      const metrics = [
+        `# HELP tailscale_total_devices Total number of devices in the network`,
+        `# TYPE tailscale_total_devices gauge`,
+        `tailscale_total_devices ${stats.totalDevices}`,
+        ``,
+        `# HELP tailscale_online_devices Number of online devices`,
+        `# TYPE tailscale_online_devices gauge`,
+        `tailscale_online_devices ${stats.onlineDevices}`,
+        ``,
+        `# HELP tailscale_offline_devices Number of offline devices`,
+        `# TYPE tailscale_offline_devices gauge`,
+        `tailscale_offline_devices ${stats.offlineDevices}`,
+        ``,
+        `# HELP tailscale_unstable_devices Number of unstable devices`,
+        `# TYPE tailscale_unstable_devices gauge`,
+        `tailscale_unstable_devices ${stats.unstableDevices}`,
+        ``,
+        `# HELP tailscale_devices_by_status Number of devices by status`,
+        `# TYPE tailscale_devices_by_status gauge`,
+        `tailscale_devices_by_status{status="connected"} ${stats.onlineDevices}`,
+        `tailscale_devices_by_status{status="disconnected"} ${stats.offlineDevices}`,
+        `tailscale_devices_by_status{status="unstable"} ${stats.unstableDevices}`,
+        ``,
+        `# HELP tailscale_device_info Device information`,
+        `# TYPE tailscale_device_info gauge`,
+        ...devices.map(device => 
+          `tailscale_device_info{name="${device.name}",hostname="${device.hostname}",type="${device.deviceType}",os="${device.os}",status="${device.status}"} 1`
+        )
+      ];
+      
+      res.set('Content-Type', 'text/plain');
+      res.send(metrics.join('\n'));
+    } catch (error) {
+      console.error('Error generating metrics:', error);
+      res.status(500).json({ error: 'Failed to generate metrics' });
+    }
+  });
+
   // Start periodic simulation of network changes (only if not using real Tailscale data)
   setInterval(async () => {
     try {

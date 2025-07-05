@@ -260,6 +260,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Manual device import endpoint
+  app.post("/api/devices/import", async (req, res) => {
+    try {
+      const { importFromTailscaleExport } = await import("./tailscale-manual");
+      const devices = await importFromTailscaleExport(JSON.stringify(req.body));
+      
+      // Clear existing devices
+      await storage.getDevices().then(existing => {
+        existing.forEach(d => storage.deleteDevice(d.id));
+      });
+      
+      // Import new devices
+      for (const device of devices) {
+        await storage.createDevice(device);
+      }
+      
+      const topology = await storage.getNetworkTopology();
+      broadcastUpdate({ type: "initial_topology", data: topology });
+      
+      res.json({ 
+        message: "Successfully imported devices", 
+        deviceCount: devices.length 
+      });
+    } catch (error: any) {
+      res.status(400).json({ 
+        error: "Failed to import devices", 
+        details: error.message 
+      });
+    }
+  });
+
   // Metrics endpoint for Prometheus/Grafana
   app.get("/metrics", async (req, res) => {
     try {

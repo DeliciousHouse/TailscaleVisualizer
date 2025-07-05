@@ -1,0 +1,31 @@
+{
+  "devices": [
+    {
+      "name": "my-server",
+      "hostname": "my-server.swallow-dace.ts.net",
+      "ipAddress": "100.64.0.1",
+      "os": "Linux",
+      "deviceType": "server",
+      "online": true,
+      "tags": ["production", "exit-node"]
+    },
+    {
+      "name": "my-laptop",
+      "hostname": "my-laptop.swallow-dace.ts.net", 
+      "ipAddress": "100.64.0.10",
+      "os": "macOS",
+      "deviceType": "desktop",
+      "online": true,
+      "tags": ["development"]
+    },
+    {
+      "name": "my-phone",
+      "hostname": "my-phone.swallow-dace.ts.net",
+      "ipAddress": "100.64.0.20",
+      "os": "iOS",
+      "deviceType": "mobile",
+      "online": false,
+      "tags": ["mobile"]
+    }
+  ]
+}

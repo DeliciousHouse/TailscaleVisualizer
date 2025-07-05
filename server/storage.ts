@@ -399,11 +399,52 @@ export class MemStorage implements IStorage {
 
   // Add method to refresh data from Tailscale API
   async refreshFromTailscale(): Promise<void> {
-    if (!isTailscaleConfigured()) {
-      throw new Error("Tailscale API not configured");
+    // Try API first if configured
+    if (isTailscaleConfigured()) {
+      try {
+        await this.syncWithTailscale();
+        return;
+      } catch (error) {
+        console.log("API refresh failed, trying manual import...");
+      }
     }
 
-    await this.syncWithTailscale();
+    // Try manual import as fallback
+    const { TailscaleManualImporter } = await import("./tailscale-manual");
+    const importer = new TailscaleManualImporter();
+    const manualDevices = await importer.loadDevicesFromFile();
+    
+    if (manualDevices.length > 0) {
+      console.log(`Refreshing from manual configuration (${manualDevices.length} devices)`);
+      
+      this.devices.clear();
+      this.connections.clear();
+      this.currentDeviceId = 1;
+      this.currentConnectionId = 1;
+      
+      for (const device of manualDevices) {
+        await this.createDevice(device);
+      }
+      
+      await this.updateNetworkStats({});
+      
+      // Create connections
+      const deviceList = Array.from(this.devices.values());
+      if (deviceList.length > 1) {
+        const coordinator = deviceList[0];
+        for (let i = 1; i < deviceList.length; i++) {
+          await this.createConnection({
+            fromDeviceId: coordinator.id,
+            toDeviceId: deviceList[i].id,
+            status: deviceList[i].status === "connected" ? "active" : "inactive",
+          });
+        }
+      }
+      
+      return;
+    }
+
+    throw new Error("No data source available - create tailscale-devices.json or configure API");
   }
 }
 

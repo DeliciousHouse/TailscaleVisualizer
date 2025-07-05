@@ -58,11 +58,14 @@ app.use((req, res, next) => {
 
   // Serve the app on port 6000 (configurable via environment)
   const port = process.env.PORT || 6000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  server.listen(
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
+    () => {
+      log(`serving on port ${port}`);
+    },
+  );
 })();

@@ -1,4 +1,14 @@
-import { devices, connections, networkStats, type Device, type InsertDevice, type Connection, type InsertConnection, type NetworkStats, type NetworkTopology } from "@shared/schema";
+import {
+  devices,
+  connections,
+  networkStats,
+  type Device,
+  type InsertDevice,
+  type Connection,
+  type InsertConnection,
+  type NetworkStats,
+  type NetworkTopology,
+} from "@shared/schema";
 import { getTailscaleClient, isTailscaleConfigured } from "./tailscale";
 
 export interface IStorage {
@@ -9,17 +19,20 @@ export interface IStorage {
   createDevice(device: InsertDevice): Promise<Device>;
   updateDevice(id: number, updates: Partial<Device>): Promise<Device>;
   deleteDevice(id: number): Promise<void>;
-  
+
   // Connection operations
   getConnections(): Promise<Connection[]>;
   createConnection(connection: InsertConnection): Promise<Connection>;
-  updateConnection(id: number, updates: Partial<Connection>): Promise<Connection>;
+  updateConnection(
+    id: number,
+    updates: Partial<Connection>,
+  ): Promise<Connection>;
   deleteConnection(id: number): Promise<void>;
-  
+
   // Network stats
   getNetworkStats(): Promise<NetworkStats>;
   updateNetworkStats(stats: Partial<NetworkStats>): Promise<NetworkStats>;
-  
+
   // Combined operations
   getNetworkTopology(): Promise<NetworkTopology>;
 }
@@ -40,7 +53,7 @@ export class MemStorage implements IStorage {
       unstableDevices: 0,
       lastUpdated: new Date(),
     };
-    
+
     // Initialize with sample network topology
     this.initializeSampleData();
   }
@@ -50,14 +63,16 @@ export class MemStorage implements IStorage {
     if (isTailscaleConfigured()) {
       try {
         await this.syncWithTailscale();
-        console.log('Successfully synchronized with Tailscale API');
+        console.log("Successfully synchronized with Tailscale API");
         return;
       } catch (error) {
-        console.error('Failed to sync with Tailscale API:', error);
-        console.log('Falling back to sample data');
+        console.error("Failed to sync with Tailscale API:", error);
+        console.log("Falling back to sample data");
       }
     } else {
-      console.log('Tailscale API not configured. Using sample data for development.');
+      console.log(
+        "Tailscale API not configured. Using sample data for development.",
+      );
     }
 
     // Fallback to sample data if Tailscale API is not available
@@ -67,7 +82,7 @@ export class MemStorage implements IStorage {
   private async syncWithTailscale(): Promise<void> {
     const client = getTailscaleClient();
     if (!client) {
-      throw new Error('Tailscale client not available');
+      throw new Error("Tailscale client not available");
     }
 
     const tailscaleDevices = await client.getDevices();
@@ -80,13 +95,15 @@ export class MemStorage implements IStorage {
     this.currentConnectionId = 1;
 
     // Convert and store devices
-    const coordinatorDevice = tailscaleDevices.find(d => d.tags?.includes('coordinator'));
+    const coordinatorDevice = tailscaleDevices.find((d) =>
+      d.tags?.includes("coordinator"),
+    );
     let coordinator: Device | null = null;
 
     for (const tailscaleDevice of tailscaleDevices) {
       const deviceData = client.convertToInternalDevice(tailscaleDevice);
       const device = await this.createDevice(deviceData);
-      
+
       if (device.isCoordinator) {
         coordinator = device;
       }
@@ -94,7 +111,9 @@ export class MemStorage implements IStorage {
 
     // Create connections (simplified hub topology if coordinator exists)
     if (coordinator) {
-      const otherDevices = Array.from(this.devices.values()).filter(d => !d.isCoordinator);
+      const otherDevices = Array.from(this.devices.values()).filter(
+        (d) => !d.isCoordinator,
+      );
       for (const device of otherDevices) {
         await this.createConnection({
           fromDeviceId: coordinator.id,
@@ -213,7 +232,7 @@ export class MemStorage implements IStorage {
         toDeviceId: createdDevices[1].id,
         status: "active",
       });
-      
+
       await this.createConnection({
         fromDeviceId: createdDevices[2].id,
         toDeviceId: createdDevices[4].id,
@@ -232,8 +251,12 @@ export class MemStorage implements IStorage {
     return this.devices.get(id);
   }
 
-  async getDeviceByTailscaleId(tailscaleId: string): Promise<Device | undefined> {
-    return Array.from(this.devices.values()).find(d => d.tailscaleId === tailscaleId);
+  async getDeviceByTailscaleId(
+    tailscaleId: string,
+  ): Promise<Device | undefined> {
+    return Array.from(this.devices.values()).find(
+      (d) => d.tailscaleId === tailscaleId,
+    );
   }
 
   async createDevice(insertDevice: InsertDevice): Promise<Device> {
@@ -260,7 +283,7 @@ export class MemStorage implements IStorage {
   async updateDevice(id: number, updates: Partial<Device>): Promise<Device> {
     const device = this.devices.get(id);
     if (!device) throw new Error(`Device with id ${id} not found`);
-    
+
     const updatedDevice = { ...device, ...updates, lastSeen: new Date() };
     this.devices.set(id, updatedDevice);
     return updatedDevice;
@@ -284,7 +307,9 @@ export class MemStorage implements IStorage {
     return Array.from(this.connections.values());
   }
 
-  async createConnection(insertConnection: InsertConnection): Promise<Connection> {
+  async createConnection(
+    insertConnection: InsertConnection,
+  ): Promise<Connection> {
     const id = this.currentConnectionId++;
     const connection: Connection = {
       ...insertConnection,
@@ -295,11 +320,18 @@ export class MemStorage implements IStorage {
     return connection;
   }
 
-  async updateConnection(id: number, updates: Partial<Connection>): Promise<Connection> {
+  async updateConnection(
+    id: number,
+    updates: Partial<Connection>,
+  ): Promise<Connection> {
     const connection = this.connections.get(id);
     if (!connection) throw new Error(`Connection with id ${id} not found`);
-    
-    const updatedConnection = { ...connection, ...updates, lastUpdated: new Date() };
+
+    const updatedConnection = {
+      ...connection,
+      ...updates,
+      lastUpdated: new Date(),
+    };
     this.connections.set(id, updatedConnection);
     return updatedConnection;
   }
@@ -312,12 +344,20 @@ export class MemStorage implements IStorage {
     return this.networkStats;
   }
 
-  async updateNetworkStats(updates: Partial<NetworkStats>): Promise<NetworkStats> {
+  async updateNetworkStats(
+    updates: Partial<NetworkStats>,
+  ): Promise<NetworkStats> {
     const devices = await this.getDevices();
     const totalDevices = devices.length;
-    const onlineDevices = devices.filter(d => d.status === "connected").length;
-    const offlineDevices = devices.filter(d => d.status === "disconnected").length;
-    const unstableDevices = devices.filter(d => d.status === "unstable").length;
+    const onlineDevices = devices.filter(
+      (d) => d.status === "connected",
+    ).length;
+    const offlineDevices = devices.filter(
+      (d) => d.status === "disconnected",
+    ).length;
+    const unstableDevices = devices.filter(
+      (d) => d.status === "unstable",
+    ).length;
 
     this.networkStats = {
       ...this.networkStats,
@@ -328,7 +368,7 @@ export class MemStorage implements IStorage {
       unstableDevices,
       lastUpdated: new Date(),
     };
-    
+
     return this.networkStats;
   }
 
@@ -336,16 +376,16 @@ export class MemStorage implements IStorage {
     const devices = await this.getDevices();
     const connections = await this.getConnections();
     const stats = await this.getNetworkStats();
-    
+
     return { devices, connections, stats };
   }
 
   // Add method to refresh data from Tailscale API
   async refreshFromTailscale(): Promise<void> {
     if (!isTailscaleConfigured()) {
-      throw new Error('Tailscale API not configured');
+      throw new Error("Tailscale API not configured");
     }
-    
+
     await this.syncWithTailscale();
   }
 }

@@ -27,10 +27,10 @@ fi
 
 # Build and start the container
 echo "🏗️  Building Docker image..."
-docker-compose build
+docker compose build
 
 echo "🚀 Starting container..."
-docker-compose up -d
+docker compose up -d
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -39,10 +39,10 @@ if [ $? -eq 0 ]; then
     echo "📊 Metrics at: http://localhost:6000/metrics"
     echo ""
     echo "📋 Commands:"
-    echo "   Stop:     docker-compose down"
-    echo "   Logs:     docker-compose logs -f"
-    echo "   Restart:  docker-compose restart"
-    echo "   Rebuild:  docker-compose build --no-cache"
+    echo "   Stop:     docker compose down"
+    echo "   Logs:     docker compose logs -f"
+    echo "   Restart:  docker compose restart"
+    echo "   Rebuild:  docker compose build --no-cache"
 else
     echo "❌ Failed to start container"
     exit 1

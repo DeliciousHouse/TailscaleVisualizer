@@ -18,9 +18,9 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
   const [showUnstable, setShowUnstable] = useState(true);
 
   const deviceTypeCounts = {
-    desktop: devices.filter(d => d.deviceType === 'desktop').length,
-    mobile: devices.filter(d => d.deviceType === 'mobile').length,
-    server: devices.filter(d => d.deviceType === 'server').length,
+    desktop: devices.filter((d) => d.deviceType === "desktop").length,
+    mobile: devices.filter((d) => d.deviceType === "mobile").length,
+    server: devices.filter((d) => d.deviceType === "server").length,
   };
 
   // Recent activity simulation
@@ -29,28 +29,32 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
       id: 1,
       message: "john-macbook connected",
       time: "2 minutes ago",
-      type: "connected"
+      type: "connected",
     },
     {
       id: 2,
       message: "server-prod-01 disconnected",
       time: "15 minutes ago",
-      type: "disconnected"
+      type: "disconnected",
     },
     {
       id: 3,
       message: "jane-iphone unstable connection",
       time: "1 hour ago",
-      type: "unstable"
+      type: "unstable",
     },
   ];
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case "connected": return "bg-connected-green";
-      case "disconnected": return "bg-error-red";
-      case "unstable": return "bg-warning-yellow";
-      default: return "bg-muted";
+      case "connected":
+        return "bg-connected-green";
+      case "disconnected":
+        return "bg-error-red";
+      case "unstable":
+        return "bg-warning-yellow";
+      default:
+        return "bg-muted";
     }
   };
 
@@ -64,40 +68,52 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Total Devices</span>
+                  <span className="text-sm text-muted-foreground">
+                    Total Devices
+                  </span>
                   <Monitor className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <div className="text-2xl font-bold mt-2">{stats.totalDevices}</div>
+                <div className="text-2xl font-bold mt-2">
+                  {stats.totalDevices}
+                </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Online</span>
                   <div className="w-2 h-2 bg-connected-green rounded-full" />
                 </div>
-                <div className="text-2xl font-bold text-connected-green mt-2">{stats.onlineDevices}</div>
+                <div className="text-2xl font-bold text-connected-green mt-2">
+                  {stats.onlineDevices}
+                </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Offline</span>
                   <div className="w-2 h-2 bg-muted rounded-full" />
                 </div>
-                <div className="text-2xl font-bold text-muted-foreground mt-2">{stats.offlineDevices}</div>
+                <div className="text-2xl font-bold text-muted-foreground mt-2">
+                  {stats.offlineDevices}
+                </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Unstable</span>
+                  <span className="text-sm text-muted-foreground">
+                    Unstable
+                  </span>
                   <div className="w-2 h-2 bg-warning-yellow rounded-full" />
                 </div>
-                <div className="text-2xl font-bold text-warning-yellow mt-2">{stats.unstableDevices}</div>
+                <div className="text-2xl font-bold text-warning-yellow mt-2">
+                  {stats.unstableDevices}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -116,7 +132,9 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
                 checked={showOnline}
                 onCheckedChange={setShowOnline}
               />
-              <label htmlFor="show-online" className="text-sm">Show Online</label>
+              <label htmlFor="show-online" className="text-sm">
+                Show Online
+              </label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -124,7 +142,9 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
                 checked={showOffline}
                 onCheckedChange={setShowOffline}
               />
-              <label htmlFor="show-offline" className="text-sm">Show Offline</label>
+              <label htmlFor="show-offline" className="text-sm">
+                Show Offline
+              </label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -132,7 +152,9 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
                 checked={showUnstable}
                 onCheckedChange={setShowUnstable}
               />
-              <label htmlFor="show-unstable" className="text-sm">Show Unstable</label>
+              <label htmlFor="show-unstable" className="text-sm">
+                Show Unstable
+              </label>
             </div>
           </div>
         </div>
@@ -174,10 +196,14 @@ export function Sidebar({ stats, devices, onDeviceSelect }: SidebarProps) {
           <div className="space-y-3">
             {recentActivity.map((activity) => (
               <div key={activity.id} className="flex items-start space-x-3">
-                <div className={`w-2 h-2 rounded-full mt-2 ${getActivityColor(activity.type)}`} />
+                <div
+                  className={`w-2 h-2 rounded-full mt-2 ${getActivityColor(activity.type)}`}
+                />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm">{activity.message}</p>
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {activity.time}
+                  </p>
                 </div>
               </div>
             ))}

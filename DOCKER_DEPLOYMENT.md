@@ -20,6 +20,7 @@ This application is designed to run in Docker containers with minimal setup:
 ## Basic Setup
 
 ### Option 1: Simple Dashboard
+
 ```bash
 # Copy environment template
 cp .env.example .env
@@ -32,6 +33,7 @@ nano .env
 ```
 
 ### Option 2: Full Monitoring Stack
+
 ```bash
 # Copy Grafana environment template
 cp .env.grafana.example .env.grafana
@@ -46,12 +48,14 @@ docker-compose -f docker-compose.grafana.yml up -d
 ## Environment Variables
 
 ### Required for Real Data
+
 ```env
 TAILSCALE_API_KEY=your_api_key_here
 TAILSCALE_TAILNET=your_tailnet_name
 ```
 
 ### Optional for Full Stack
+
 ```env
 # Database settings
 INFLUXDB_TOKEN=your_secure_token
@@ -68,6 +72,7 @@ GRAFANA_PASSWORD=your_secure_password
 ## Docker Commands
 
 ### Basic Operations
+
 ```bash
 # Start dashboard
 docker-compose up -d
@@ -86,6 +91,7 @@ docker-compose build --no-cache
 ```
 
 ### Full Stack Operations
+
 ```bash
 # Start full monitoring stack
 docker-compose -f docker-compose.grafana.yml up -d
@@ -100,6 +106,7 @@ docker-compose -f docker-compose.grafana.yml down -v
 ## Production Deployment
 
 ### Single Container
+
 ```bash
 # Build production image
 docker build -t tailscale-dashboard .
@@ -113,6 +120,7 @@ docker run -d \
 ```
 
 ### Full Stack
+
 ```bash
 # Production deployment
 docker-compose -f docker-compose.grafana.yml up -d
@@ -121,11 +129,13 @@ docker-compose -f docker-compose.grafana.yml up -d
 ## Data Persistence
 
 ### Application Data
+
 - Uses in-memory storage by default
 - No external database required
 - Syncs with Tailscale API in real-time
 
 ### Monitoring Data
+
 - **InfluxDB**: Time-series metrics stored in Docker volumes
 - **Grafana**: Dashboard configurations in Docker volumes
 - **Prometheus**: Metrics data in Docker volumes
@@ -133,12 +143,14 @@ docker-compose -f docker-compose.grafana.yml up -d
 ## Networking
 
 ### Port Configuration
+
 - **6000**: Main application (dashboard + API)
 - **3000**: Grafana (optional)
 - **8086**: InfluxDB (optional)
 - **9090**: Prometheus (optional)
 
 ### Container Communication
+
 - Internal Docker network for service communication
 - Prometheus scrapes metrics from dashboard on port 6000
 - InfluxDB receives data from dashboard
@@ -147,6 +159,7 @@ docker-compose -f docker-compose.grafana.yml up -d
 ## Health Checks
 
 The application includes built-in health monitoring:
+
 - **API Health**: `/api/network/topology` returns 200 OK
 - **Metrics Health**: `/metrics` returns Prometheus format
 - **WebSocket Health**: Real-time updates via WebSocket
@@ -156,33 +169,37 @@ The application includes built-in health monitoring:
 ### Common Issues
 
 1. **Port 6000 already in use**
+
    ```bash
    # Check what's using the port
    lsof -i :6000
-   
+
    # Use different port
    docker-compose up -d -p 6001:6000
    ```
 
 2. **API credentials not working**
+
    ```bash
    # Check logs
    docker-compose logs -f
-   
+
    # Verify environment variables
    docker-compose exec app env | grep TAILSCALE
    ```
 
 3. **Containers not starting**
+
    ```bash
    # Check Docker status
    docker-compose ps
-   
+
    # View detailed logs
    docker-compose logs --details
    ```
 
 ### Log Monitoring
+
 ```bash
 # Follow all logs
 docker-compose logs -f
@@ -197,11 +214,13 @@ docker-compose logs --tail=50
 ## Resource Requirements
 
 ### Minimum (Basic Dashboard)
+
 - **CPU**: 0.5 cores
 - **Memory**: 512MB
 - **Disk**: 1GB
 
 ### Recommended (Full Stack)
+
 - **CPU**: 2 cores
 - **Memory**: 2GB
 - **Disk**: 5GB
@@ -209,12 +228,14 @@ docker-compose logs --tail=50
 ## Security
 
 ### Best Practices
+
 - Store API keys as Docker secrets in production
 - Use environment files that aren't committed to git
 - Regular container updates
 - Network isolation for production deployments
 
 ### Docker Secrets (Production)
+
 ```bash
 # Create secrets
 echo "your_api_key" | docker secret create tailscale_api_key -
@@ -230,6 +251,7 @@ services:
 ## Backup Strategy
 
 ### Application Backup
+
 ```bash
 # Backup environment files
 cp .env .env.backup
@@ -237,6 +259,7 @@ cp .env.grafana .env.grafana.backup
 ```
 
 ### Data Backup
+
 ```bash
 # Backup Docker volumes
 docker run --rm -v grafana_data:/data -v $(pwd):/backup alpine tar czf /backup/grafana-backup.tar.gz /data
@@ -245,10 +268,12 @@ docker run --rm -v grafana_data:/data -v $(pwd):/backup alpine tar czf /backup/g
 ## Scaling
 
 ### Horizontal Scaling
+
 - Dashboard can run multiple instances behind load balancer
 - Shared InfluxDB/Grafana for centralized monitoring
 - WebSocket sticky sessions required
 
 ### Vertical Scaling
+
 - Increase container resources in compose file
 - Monitor CPU/memory usage with built-in metrics

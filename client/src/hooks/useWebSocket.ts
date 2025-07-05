@@ -10,29 +10,29 @@ export function useWebSocket() {
     try {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}/ws`;
-      
+
       ws.current = new WebSocket(wsUrl);
-      
+
       ws.current.onopen = () => {
         setIsConnected(true);
         console.log("WebSocket connected");
       };
-      
+
       ws.current.onmessage = (event) => {
         setLastMessage(event.data);
       };
-      
+
       ws.current.onclose = () => {
         setIsConnected(false);
         console.log("WebSocket disconnected");
-        
+
         // Attempt to reconnect after 5 seconds
         reconnectTimeoutRef.current = setTimeout(() => {
           console.log("Attempting to reconnect...");
           connect();
         }, 5000);
       };
-      
+
       ws.current.onerror = (error) => {
         console.error("WebSocket error:", error);
       };
@@ -43,7 +43,7 @@ export function useWebSocket() {
 
   useEffect(() => {
     connect();
-    
+
     return () => {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);

@@ -3,6 +3,7 @@
 This folder holds the Express backend. It serves API routes, stores data in memory, and pushes updates to connected clients using WebSockets.
 
 ## Key tasks
+
 - [x] Express server with ES module support
 - [x] Basic WebSocket setup for real-time updates
 - [x] Simple in-memory storage layer

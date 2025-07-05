@@ -13,7 +13,10 @@ import { Sidebar } from "@/components/Sidebar";
 import { DeviceModal } from "@/components/DeviceModal";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useTheme } from "@/components/ThemeProvider";
-import type { Device, NetworkTopology as NetworkTopologyType } from "@shared/schema";
+import type {
+  Device,
+  NetworkTopology as NetworkTopologyType,
+} from "@shared/schema";
 
 export default function Dashboard() {
   const { theme, toggleTheme } = useTheme();
@@ -37,7 +40,7 @@ export default function Dashboard() {
     },
     onError: (error: any) => {
       toast({
-        title: "Refresh Failed", 
+        title: "Refresh Failed",
         description: error.message || "Failed to refresh network data",
         variant: "destructive",
       });
@@ -50,18 +53,24 @@ export default function Dashboard() {
   useEffect(() => {
     if (lastMessage) {
       const message = JSON.parse(lastMessage);
-      
-      if (message.type === 'device_status' || message.type === 'stats_updated' || message.type === 'initial_topology') {
+
+      if (
+        message.type === "device_status" ||
+        message.type === "stats_updated" ||
+        message.type === "initial_topology"
+      ) {
         refetch();
       }
     }
   }, [lastMessage, refetch]);
 
-  const filteredDevices = topology?.devices?.filter(device =>
-    device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    device.hostname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    device.ipAddress.includes(searchQuery)
-  ) || [];
+  const filteredDevices =
+    topology?.devices?.filter(
+      (device) =>
+        device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        device.hostname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        device.ipAddress.includes(searchQuery),
+    ) || [];
 
   if (!topology) {
     return (
@@ -85,12 +94,17 @@ export default function Dashboard() {
               <h1 className="text-xl font-semibold">Tailscale Network</h1>
             </div>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>{topology?.devices?.find(d => d.isCoordinator)?.hostname || 'demo-tailnet.ts.net'}</span>
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-connected-green' : 'bg-error-red'}`} />
-              <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+              <span>
+                {topology?.devices?.find((d) => d.isCoordinator)?.hostname ||
+                  "demo-tailnet.ts.net"}
+              </span>
+              <div
+                className={`w-2 h-2 rounded-full ${isConnected ? "bg-connected-green" : "bg-error-red"}`}
+              />
+              <span>{isConnected ? "Connected" : "Disconnected"}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4 ml-auto">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -101,7 +115,7 @@ export default function Dashboard() {
                 className="pl-9 w-64"
               />
             </div>
-            
+
             <Button
               variant="outline"
               size="icon"
@@ -109,22 +123,20 @@ export default function Dashboard() {
               disabled={refreshMutation.isPending}
               title="Refresh from Tailscale API"
             >
-              <RefreshCw className={`h-4 w-4 ${refreshMutation.isPending ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${refreshMutation.isPending ? "animate-spin" : ""}`}
+              />
             </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleTheme}
-            >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+
+            <Button variant="outline" size="icon" onClick={toggleTheme}>
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
             </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              className="relative"
-            >
+
+            <Button variant="outline" size="icon" className="relative">
               <Bell className="h-4 w-4" />
               {notificationCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
@@ -138,7 +150,7 @@ export default function Dashboard() {
 
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar 
+        <Sidebar
           stats={topology.stats}
           devices={topology.devices}
           onDeviceSelect={setSelectedDevice}
@@ -151,11 +163,17 @@ export default function Dashboard() {
             <div className="px-6 py-4">
               <Tabs defaultValue="topology" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="topology" className="flex items-center space-x-2">
+                  <TabsTrigger
+                    value="topology"
+                    className="flex items-center space-x-2"
+                  >
                     <Network className="h-4 w-4" />
                     <span>Network Topology</span>
                   </TabsTrigger>
-                  <TabsTrigger value="grid" className="flex items-center space-x-2">
+                  <TabsTrigger
+                    value="grid"
+                    className="flex items-center space-x-2"
+                  >
                     <div className="grid grid-cols-2 gap-0.5 h-4 w-4">
                       <div className="bg-current rounded-sm" />
                       <div className="bg-current rounded-sm" />
@@ -164,12 +182,15 @@ export default function Dashboard() {
                     </div>
                     <span>Device Grid</span>
                   </TabsTrigger>
-                  <TabsTrigger value="analytics" className="flex items-center space-x-2">
+                  <TabsTrigger
+                    value="analytics"
+                    className="flex items-center space-x-2"
+                  >
                     <Zap className="h-4 w-4" />
                     <span>Analytics</span>
                   </TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="topology" className="mt-6">
                   <div className="h-[calc(100vh-12rem)]">
                     <NetworkTopology
@@ -179,15 +200,29 @@ export default function Dashboard() {
                     />
                   </div>
                 </TabsContent>
-                
+
                 <TabsContent value="grid" className="mt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
                     {filteredDevices.map((device) => (
-                      <Card key={device.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedDevice(device)}>
+                      <Card
+                        key={device.id}
+                        className="cursor-pointer hover:shadow-lg transition-shadow"
+                        onClick={() => setSelectedDevice(device)}
+                      >
                         <CardHeader className="pb-3">
                           <div className="flex items-center justify-between">
-                            <CardTitle className="text-base">{device.name}</CardTitle>
-                            <Badge variant={device.status === 'connected' ? 'default' : device.status === 'unstable' ? 'destructive' : 'secondary'}>
+                            <CardTitle className="text-base">
+                              {device.name}
+                            </CardTitle>
+                            <Badge
+                              variant={
+                                device.status === "connected"
+                                  ? "default"
+                                  : device.status === "unstable"
+                                    ? "destructive"
+                                    : "secondary"
+                              }
+                            >
                               {device.status}
                             </Badge>
                           </div>
@@ -195,12 +230,16 @@ export default function Dashboard() {
                         <CardContent>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Type:</span>
+                              <span className="text-muted-foreground">
+                                Type:
+                              </span>
                               <span>{device.deviceType}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">IP:</span>
-                              <span className="font-mono">{device.ipAddress}</span>
+                              <span className="font-mono">
+                                {device.ipAddress}
+                              </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">OS:</span>
@@ -212,7 +251,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </TabsContent>
-                
+
                 <TabsContent value="analytics" className="mt-6">
                   <div className="p-6">
                     <Card>
@@ -221,8 +260,9 @@ export default function Dashboard() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-muted-foreground">
-                          Analytics dashboard coming soon. This will show network performance metrics,
-                          bandwidth usage, and connection quality over time.
+                          Analytics dashboard coming soon. This will show
+                          network performance metrics, bandwidth usage, and
+                          connection quality over time.
                         </p>
                       </CardContent>
                     </Card>

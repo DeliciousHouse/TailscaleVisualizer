@@ -48,29 +48,34 @@ NODE_ENV=development
 ### Finding Your Tailnet Name
 
 Your tailnet name is typically your organization name or email domain. You can find it in:
+
 - The Tailscale Admin Console URL: `https://login.tailscale.com/admin/machines/{tailnet-name}`
 - Your device hostnames: `device-name.{tailnet-name}.ts.net`
 
 ## Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone <repository-url>
    cd tailscale-network-dashboard
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**:
+
    ```bash
    cp .env.example .env
    # Edit .env with your Tailscale API key and tailnet name
    ```
 
 4. **Start the development server**:
+
    ```bash
    npm run dev
    ```
@@ -175,11 +180,13 @@ docker run -p 5000:5000 \
 ### Common Issues
 
 1. **WebSocket Connection Failed**:
+
    - Check if the server is running
    - Verify WebSocket URL matches your domain
    - Ensure no firewall blocking WebSocket connections
 
 2. **No Devices Showing**:
+
    - Verify your Tailscale API key has correct permissions
    - Check that your tailnet name is correct
    - Ensure devices are connected to your Tailscale network
@@ -211,6 +218,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For issues and questions:
+
 - Check the troubleshooting section above
 - Open an issue on GitHub
 - Contact the development team

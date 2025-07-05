@@ -75,7 +75,7 @@
             "legendFormat": "Online"
           },
           {
-            "expr": "tailscale_offline_devices", 
+            "expr": "tailscale_offline_devices",
             "legendFormat": "Offline"
           },
           {

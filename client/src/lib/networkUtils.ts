@@ -15,15 +15,18 @@ export interface NetworkLink {
   connection: Connection;
 }
 
-export function createNetworkGraph(devices: Device[], connections: Connection[]) {
-  const nodes: NetworkNode[] = devices.map(device => ({
+export function createNetworkGraph(
+  devices: Device[],
+  connections: Connection[],
+) {
+  const nodes: NetworkNode[] = devices.map((device) => ({
     id: device.id.toString(),
     device,
     x: device.x || Math.random() * 800,
     y: device.y || Math.random() * 600,
   }));
 
-  const links: NetworkLink[] = connections.map(connection => ({
+  const links: NetworkLink[] = connections.map((connection) => ({
     source: connection.fromDeviceId.toString(),
     target: connection.toDeviceId.toString(),
     connection,
@@ -36,7 +39,7 @@ export function calculateForceDirectedLayout(
   nodes: NetworkNode[],
   links: NetworkLink[],
   width: number,
-  height: number
+  height: number,
 ) {
   const iterations = 100;
   const k = Math.sqrt((width * height) / nodes.length);
@@ -72,8 +75,8 @@ export function calculateForceDirectedLayout(
 
     // Apply attraction between connected nodes
     for (const link of links) {
-      const source = nodes.find(n => n.id === link.source);
-      const target = nodes.find(n => n.id === link.target);
+      const source = nodes.find((n) => n.id === link.source);
+      const target = nodes.find((n) => n.id === link.target);
 
       if (source && target) {
         const dx = target.x - source.x;
@@ -111,19 +114,30 @@ export function calculateForceDirectedLayout(
 
 export function getDeviceStatusColor(status: string): string {
   switch (status) {
-    case "connected": return "#10B981";
-    case "unstable": return "#F59E0B";
-    case "disconnected": return "#6B7280";
-    default: return "#6B7280";
+    case "connected":
+      return "#10B981";
+    case "unstable":
+      return "#F59E0B";
+    case "disconnected":
+      return "#6B7280";
+    default:
+      return "#6B7280";
   }
 }
 
-export function getDeviceIcon(deviceType: string, isCoordinator: boolean): string {
+export function getDeviceIcon(
+  deviceType: string,
+  isCoordinator: boolean,
+): string {
   if (isCoordinator) return "🔗";
   switch (deviceType) {
-    case "desktop": return "💻";
-    case "mobile": return "📱";
-    case "server": return "🖥️";
-    default: return "📟";
+    case "desktop":
+      return "💻";
+    case "mobile":
+      return "📱";
+    case "server":
+      return "🖥️";
+    default:
+      return "📟";
   }
 }

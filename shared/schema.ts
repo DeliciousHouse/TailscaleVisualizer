@@ -1,4 +1,11 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -60,6 +67,11 @@ export interface NetworkTopology {
 }
 
 export interface DeviceUpdate {
-  type: 'device_status' | 'device_connected' | 'device_disconnected' | 'stats_updated' | 'initial_topology';
+  type:
+    | "device_status"
+    | "device_connected"
+    | "device_disconnected"
+    | "stats_updated"
+    | "initial_topology";
   data: Device | NetworkStats | NetworkTopology;
 }

@@ -7,6 +7,7 @@ This is a full-stack web application that provides a real-time network topology 
 ## System Architecture
 
 ### Frontend Architecture
+
 - **Framework**: React with TypeScript
 - **Styling**: Tailwind CSS with shadcn/ui component library
 - **State Management**: TanStack Query for server state management
@@ -15,6 +16,7 @@ This is a full-stack web application that provides a real-time network topology 
 - **Build Tool**: Vite for development and production builds
 
 ### Backend Architecture
+
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ES modules
 - **Database**: PostgreSQL with Drizzle ORM
@@ -22,6 +24,7 @@ This is a full-stack web application that provides a real-time network topology 
 - **Development**: Hot reload with Vite middleware integration
 
 ### Database Design
+
 - **ORM**: Drizzle ORM with PostgreSQL dialect
 - **Schema**: Three main tables:
   - `devices`: Store device information (name, hostname, IP, status, position)
@@ -32,6 +35,7 @@ This is a full-stack web application that provides a real-time network topology 
 ## Key Components
 
 ### Core Features
+
 1. **Network Topology Visualization**: Interactive SVG-based network diagram showing device connections
 2. **Real-time Status Updates**: WebSocket-powered live updates for device status changes
 3. **Device Management**: View detailed device information and perform actions (SSH, ping)
@@ -39,6 +43,7 @@ This is a full-stack web application that provides a real-time network topology 
 5. **Responsive Design**: Mobile-friendly interface with adaptive layouts
 
 ### UI Components
+
 - **Dashboard**: Main interface with topology view and statistics
 - **Device Modal**: Detailed device information with action buttons
 - **Sidebar**: Network statistics, device filters, and activity feed
@@ -46,6 +51,7 @@ This is a full-stack web application that provides a real-time network topology 
 - **Theme System**: Dark/light mode toggle with persistent preferences
 
 ### Backend Services
+
 - **Storage Layer**: In-memory storage implementation with PostgreSQL schema ready
 - **WebSocket Handler**: Real-time communication for network updates
 - **API Routes**: RESTful endpoints for device and network data
@@ -62,6 +68,7 @@ This is a full-stack web application that provides a real-time network topology 
 ## External Dependencies
 
 ### Frontend Dependencies
+
 - **UI Framework**: React 18 with TypeScript support
 - **Component Library**: Radix UI primitives with shadcn/ui components
 - **State Management**: TanStack Query for caching and synchronization
@@ -70,6 +77,7 @@ This is a full-stack web application that provides a real-time network topology 
 - **Icons**: Lucide React for consistent iconography
 
 ### Backend Dependencies
+
 - **Database**: Neon Database (PostgreSQL serverless)
 - **ORM**: Drizzle ORM with Zod validation
 - **WebSocket**: Built-in WebSocket server
@@ -79,17 +87,20 @@ This is a full-stack web application that provides a real-time network topology 
 ## Deployment Strategy
 
 ### Development Environment
+
 - **Local Development**: `npm run dev` starts both frontend and backend with hot reload
 - **Database**: Requires `DATABASE_URL` environment variable for PostgreSQL connection
 - **WebSocket**: Automatically configured for local development
 
 ### Production Build
+
 - **Frontend**: Vite builds optimized static assets to `dist/public`
 - **Backend**: ESBuild bundles server code to `dist/index.js`
 - **Database Migration**: `npm run db:push` applies schema changes
 - **Start Command**: `npm start` runs the production server
 
 ### Environment Configuration
+
 - **Required Variables**: `DATABASE_URL` for database connection
 - **Optional Variables**: Node environment settings for optimization
 - **Port Configuration**: Defaults to standard HTTP ports with WebSocket support

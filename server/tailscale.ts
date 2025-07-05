@@ -34,33 +34,40 @@ export interface TailscaleApiResponse {
 export class TailscaleClient {
   private apiKey: string;
   private tailnet: string;
-  private baseUrl = 'https://api.tailscale.com/api/v2';
+  private baseUrl = "https://api.tailscale.com/api/v2";
 
   constructor(apiKey: string, tailnet: string) {
     this.apiKey = apiKey;
     this.tailnet = tailnet;
   }
 
-  private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async makeRequest<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
 
     if (!response.ok) {
-      throw new Error(`Tailscale API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Tailscale API error: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
   async getDevices(): Promise<TailscaleDevice[]> {
-    const response = await this.makeRequest<TailscaleApiResponse>(`/tailnet/${this.tailnet}/devices`);
+    const response = await this.makeRequest<TailscaleApiResponse>(
+      `/tailnet/${this.tailnet}/devices`,
+    );
     return response.devices;
   }
 
@@ -68,30 +75,33 @@ export class TailscaleClient {
     return this.makeRequest<TailscaleDevice>(`/device/${deviceId}`);
   }
 
-  async updateDevice(deviceId: string, updates: Partial<TailscaleDevice>): Promise<TailscaleDevice> {
+  async updateDevice(
+    deviceId: string,
+    updates: Partial<TailscaleDevice>,
+  ): Promise<TailscaleDevice> {
     return this.makeRequest<TailscaleDevice>(`/device/${deviceId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(updates),
     });
   }
 
   async authorizeDevice(deviceId: string): Promise<void> {
     await this.makeRequest(`/device/${deviceId}/authorized`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ authorized: true }),
     });
   }
 
   async deauthorizeDevice(deviceId: string): Promise<void> {
     await this.makeRequest(`/device/${deviceId}/authorized`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ authorized: false }),
     });
   }
 
   async deleteDevice(deviceId: string): Promise<void> {
     await this.makeRequest(`/device/${deviceId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
@@ -99,54 +109,60 @@ export class TailscaleClient {
   convertToInternalDevice(tailscaleDevice: TailscaleDevice): InsertDevice {
     const deviceType = this.getDeviceType(tailscaleDevice.os);
     const status = this.getDeviceStatus(tailscaleDevice);
-    
+
     return {
       name: tailscaleDevice.name,
       hostname: tailscaleDevice.hostname,
       tailscaleId: tailscaleDevice.id,
-      ipAddress: tailscaleDevice.addresses[0] || 'Unknown',
+      ipAddress: tailscaleDevice.addresses[0] || "Unknown",
       deviceType,
       os: tailscaleDevice.os,
       status,
       tags: tailscaleDevice.tags || [],
-      isCoordinator: tailscaleDevice.tags?.includes('coordinator') || false,
+      isCoordinator: tailscaleDevice.tags?.includes("coordinator") || false,
     };
   }
 
   private getDeviceType(os: string): string {
     const osLower = os.toLowerCase();
-    if (osLower.includes('ios') || osLower.includes('android')) {
-      return 'mobile';
+    if (osLower.includes("ios") || osLower.includes("android")) {
+      return "mobile";
     }
-    if (osLower.includes('linux') || osLower.includes('ubuntu') || osLower.includes('debian')) {
-      return 'server';
+    if (
+      osLower.includes("linux") ||
+      osLower.includes("ubuntu") ||
+      osLower.includes("debian")
+    ) {
+      return "server";
     }
-    return 'desktop';
+    return "desktop";
   }
 
   private getDeviceStatus(device: TailscaleDevice): string {
-    if (!device.online) return 'disconnected';
-    
+    if (!device.online) return "disconnected";
+
     const lastSeen = new Date(device.lastSeen);
     const now = new Date();
-    const minutesSinceLastSeen = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
-    
-    if (minutesSinceLastSeen > 5) return 'unstable';
-    return 'connected';
+    const minutesSinceLastSeen =
+      (now.getTime() - lastSeen.getTime()) / (1000 * 60);
+
+    if (minutesSinceLastSeen > 5) return "unstable";
+    return "connected";
   }
 
   // Generate network statistics from devices
   generateNetworkStats(devices: TailscaleDevice[]): NetworkStats {
-    const onlineDevices = devices.filter(d => d.online).length;
+    const onlineDevices = devices.filter((d) => d.online).length;
     const totalDevices = devices.length;
     const offlineDevices = totalDevices - onlineDevices;
-    
+
     // Calculate unstable devices (online but not seen recently)
-    const unstableDevices = devices.filter(d => {
+    const unstableDevices = devices.filter((d) => {
       if (!d.online) return false;
       const lastSeen = new Date(d.lastSeen);
       const now = new Date();
-      const minutesSinceLastSeen = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
+      const minutesSinceLastSeen =
+        (now.getTime() - lastSeen.getTime()) / (1000 * 60);
       return minutesSinceLastSeen > 5;
     }).length;
 
@@ -168,15 +184,17 @@ export function getTailscaleClient(): TailscaleClient | null {
   if (!tailscaleClient) {
     const apiKey = process.env.TAILSCALE_API_KEY;
     const tailnet = process.env.TAILSCALE_TAILNET;
-    
+
     if (!apiKey || !tailnet) {
-      console.warn('Tailscale API key or tailnet not configured. Using mock data.');
+      console.warn(
+        "Tailscale API key or tailnet not configured. Using mock data.",
+      );
       return null;
     }
-    
+
     tailscaleClient = new TailscaleClient(apiKey, tailnet);
   }
-  
+
   return tailscaleClient;
 }
 

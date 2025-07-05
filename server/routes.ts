@@ -7,34 +7,34 @@ import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
-  
+
   // WebSocket server for real-time updates
-  const wss = new WebSocketServer({ 
-    server: httpServer, 
-    path: '/ws' 
+  const wss = new WebSocketServer({
+    server: httpServer,
+    path: "/ws",
   });
 
   // Store connected WebSocket clients
   const clients = new Set<WebSocket>();
 
-  wss.on('connection', (ws) => {
+  wss.on("connection", (ws) => {
     clients.add(ws);
-    console.log('Client connected, total clients:', clients.size);
-    
+    console.log("Client connected, total clients:", clients.size);
+
     // Send initial network topology
-    storage.getNetworkTopology().then(topology => {
+    storage.getNetworkTopology().then((topology) => {
       if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'initial_topology', data: topology }));
+        ws.send(JSON.stringify({ type: "initial_topology", data: topology }));
       }
     });
 
-    ws.on('close', () => {
+    ws.on("close", () => {
       clients.delete(ws);
-      console.log('Client disconnected, total clients:', clients.size);
+      console.log("Client disconnected, total clients:", clients.size);
     });
 
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
+    ws.on("error", (error) => {
+      console.error("WebSocket error:", error);
       clients.delete(ws);
     });
   });
@@ -42,7 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Broadcast updates to all connected clients
   function broadcastUpdate(update: DeviceUpdate) {
     const message = JSON.stringify(update);
-    clients.forEach(ws => {
+    clients.forEach((ws) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(message);
       }
@@ -50,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // API Routes
-  
+
   // Get network topology
   app.get("/api/network/topology", async (req, res) => {
     try {
@@ -90,17 +90,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
-      
+
       const device = await storage.updateDevice(id, updates);
-      
+
       // Update network stats
       await storage.updateNetworkStats({});
       const stats = await storage.getNetworkStats();
-      
+
       // Broadcast updates
-      broadcastUpdate({ type: 'device_status', data: device });
-      broadcastUpdate({ type: 'stats_updated', data: stats });
-      
+      broadcastUpdate({ type: "device_status", data: device });
+      broadcastUpdate({ type: "stats_updated", data: stats });
+
       res.json(device);
     } catch (error) {
       res.status(500).json({ error: "Failed to update device" });
@@ -112,19 +112,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const deviceData = insertDeviceSchema.parse(req.body);
       const device = await storage.createDevice(deviceData);
-      
+
       // Update network stats
       await storage.updateNetworkStats({});
       const stats = await storage.getNetworkStats();
-      
+
       // Broadcast updates
-      broadcastUpdate({ type: 'device_connected', data: device });
-      broadcastUpdate({ type: 'stats_updated', data: stats });
-      
+      broadcastUpdate({ type: "device_connected", data: device });
+      broadcastUpdate({ type: "stats_updated", data: stats });
+
       res.status(201).json(device);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Invalid device data", details: error.errors });
+        res
+          .status(400)
+          .json({ error: "Invalid device data", details: error.errors });
       } else {
         res.status(500).json({ error: "Failed to create device" });
       }
@@ -136,21 +138,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const device = await storage.getDevice(id);
-      
+
       if (!device) {
         return res.status(404).json({ error: "Device not found" });
       }
-      
+
       await storage.deleteDevice(id);
-      
+
       // Update network stats
       await storage.updateNetworkStats({});
       const stats = await storage.getNetworkStats();
-      
+
       // Broadcast updates
-      broadcastUpdate({ type: 'device_disconnected', data: device });
-      broadcastUpdate({ type: 'stats_updated', data: stats });
-      
+      broadcastUpdate({ type: "device_disconnected", data: device });
+      broadcastUpdate({ type: "stats_updated", data: stats });
+
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete device" });
@@ -172,22 +174,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const devices = await storage.getDevices();
       const randomDevice = devices[Math.floor(Math.random() * devices.length)];
-      
-      const statuses = ['connected', 'disconnected', 'unstable'];
+
+      const statuses = ["connected", "disconnected", "unstable"];
       const currentStatus = randomDevice.status;
-      const newStatus = statuses.filter(s => s !== currentStatus)[Math.floor(Math.random() * 2)];
-      
-      const updatedDevice = await storage.updateDevice(randomDevice.id, { status: newStatus });
-      
+      const newStatus = statuses.filter((s) => s !== currentStatus)[
+        Math.floor(Math.random() * 2)
+      ];
+
+      const updatedDevice = await storage.updateDevice(randomDevice.id, {
+        status: newStatus,
+      });
+
       // Update network stats
       await storage.updateNetworkStats({});
       const stats = await storage.getNetworkStats();
-      
+
       // Broadcast updates
-      broadcastUpdate({ type: 'device_status', data: updatedDevice });
-      broadcastUpdate({ type: 'stats_updated', data: stats });
-      
-      res.json({ message: `Device ${randomDevice.name} status changed to ${newStatus}` });
+      broadcastUpdate({ type: "device_status", data: updatedDevice });
+      broadcastUpdate({ type: "stats_updated", data: stats });
+
+      res.json({
+        message: `Device ${randomDevice.name} status changed to ${newStatus}`,
+      });
     } catch (error) {
       res.status(500).json({ error: "Failed to simulate device change" });
     }
@@ -197,29 +205,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/network/refresh", async (req, res) => {
     try {
       await storage.refreshFromTailscale();
-      
+
       // Get updated topology
       const topology = await storage.getNetworkTopology();
-      
+
       // Broadcast updates to all clients
-      broadcastUpdate({ type: 'initial_topology', data: topology });
-      
+      broadcastUpdate({ type: "initial_topology", data: topology });
+
       res.json({ message: "Network data refreshed successfully", topology });
     } catch (error) {
-      console.error('Failed to refresh from Tailscale:', error);
-      res.status(500).json({ 
-        error: "Failed to refresh network data", 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      console.error("Failed to refresh from Tailscale:", error);
+      res.status(500).json({
+        error: "Failed to refresh network data",
+        details: error instanceof Error ? error.message : "Unknown error",
       });
     }
   });
 
   // Metrics endpoint for Prometheus/Grafana
-  app.get('/metrics', async (req, res) => {
+  app.get("/metrics", async (req, res) => {
     try {
       const stats = await storage.getNetworkStats();
       const devices = await storage.getDevices();
-      
+
       // Generate Prometheus metrics format
       const metrics = [
         `# HELP tailscale_total_devices Total number of devices in the network`,
@@ -246,16 +254,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ``,
         `# HELP tailscale_device_info Device information`,
         `# TYPE tailscale_device_info gauge`,
-        ...devices.map(device => 
-          `tailscale_device_info{name="${device.name}",hostname="${device.hostname}",type="${device.deviceType}",os="${device.os}",status="${device.status}"} 1`
-        )
+        ...devices.map(
+          (device) =>
+            `tailscale_device_info{name="${device.name}",hostname="${device.hostname}",type="${device.deviceType}",os="${device.os}",status="${device.status}"} 1`,
+        ),
       ];
-      
-      res.set('Content-Type', 'text/plain');
-      res.send(metrics.join('\n'));
+
+      res.set("Content-Type", "text/plain");
+      res.send(metrics.join("\n"));
     } catch (error) {
-      console.error('Error generating metrics:', error);
-      res.status(500).json({ error: 'Failed to generate metrics' });
+      console.error("Error generating metrics:", error);
+      res.status(500).json({ error: "Failed to generate metrics" });
     }
   });
 
@@ -264,32 +273,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const devices = await storage.getDevices();
       if (devices.length === 0) return;
-      
+
       // Only simulate if we're not using real Tailscale data
       if (process.env.TAILSCALE_API_KEY && process.env.TAILSCALE_TAILNET) {
         return; // Skip simulation when using real data
       }
-      
+
       // Randomly change device status
-      if (Math.random() < 0.3) { // 30% chance
-        const randomDevice = devices[Math.floor(Math.random() * devices.length)];
-        
-        const statuses = ['connected', 'disconnected', 'unstable'];
+      if (Math.random() < 0.3) {
+        // 30% chance
+        const randomDevice =
+          devices[Math.floor(Math.random() * devices.length)];
+
+        const statuses = ["connected", "disconnected", "unstable"];
         const currentStatus = randomDevice.status;
-        const newStatus = statuses.filter(s => s !== currentStatus)[Math.floor(Math.random() * 2)];
-        
-        const updatedDevice = await storage.updateDevice(randomDevice.id, { status: newStatus });
-        
+        const newStatus = statuses.filter((s) => s !== currentStatus)[
+          Math.floor(Math.random() * 2)
+        ];
+
+        const updatedDevice = await storage.updateDevice(randomDevice.id, {
+          status: newStatus,
+        });
+
         // Update network stats
         await storage.updateNetworkStats({});
         const stats = await storage.getNetworkStats();
-        
+
         // Broadcast updates
-        broadcastUpdate({ type: 'device_status', data: updatedDevice });
-        broadcastUpdate({ type: 'stats_updated', data: stats });
+        broadcastUpdate({ type: "device_status", data: updatedDevice });
+        broadcastUpdate({ type: "stats_updated", data: stats });
       }
     } catch (error) {
-      console.error('Error in periodic simulation:', error);
+      console.error("Error in periodic simulation:", error);
     }
   }, 10000); // Every 10 seconds
 

@@ -11,7 +11,11 @@ interface NetworkTopologyProps {
   onDeviceClick: (device: Device) => void;
 }
 
-export function NetworkTopology({ devices, connections, onDeviceClick }: NetworkTopologyProps) {
+export function NetworkTopology({
+  devices,
+  connections,
+  onDeviceClick,
+}: NetworkTopologyProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -19,20 +23,28 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
   const getDeviceEmoji = (deviceType: string, isCoordinator: boolean) => {
     if (isCoordinator) return "🔗";
     switch (deviceType) {
-      case "desktop": return "💻";
-      case "mobile": return "📱";
-      case "server": return "🖥️";
-      default: return "📟";
+      case "desktop":
+        return "💻";
+      case "mobile":
+        return "📱";
+      case "server":
+        return "🖥️";
+      default:
+        return "📟";
     }
   };
 
   // Status colors
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "connected": return "var(--connected-green)";
-      case "unstable": return "var(--warning-yellow)";
-      case "disconnected": return "hsl(240, 5%, 65%)";
-      default: return "hsl(240, 5%, 65%)";
+      case "connected":
+        return "var(--connected-green)";
+      case "unstable":
+        return "var(--warning-yellow)";
+      case "disconnected":
+        return "hsl(240, 5%, 65%)";
+      default:
+        return "hsl(240, 5%, 65%)";
     }
   };
 
@@ -40,24 +52,24 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
   const positionDevices = () => {
     const width = containerRef.current?.clientWidth || 800;
     const height = containerRef.current?.clientHeight || 600;
-    
+
     // Find coordinator
-    const coordinator = devices.find(d => d.isCoordinator);
-    
+    const coordinator = devices.find((d) => d.isCoordinator);
+
     if (coordinator) {
       // Position coordinator at center
       coordinator.x = width / 2;
       coordinator.y = height / 2;
     }
-    
+
     // Position other devices in a circle around coordinator
-    const otherDevices = devices.filter(d => !d.isCoordinator);
+    const otherDevices = devices.filter((d) => !d.isCoordinator);
     const radius = Math.min(width, height) * 0.3;
-    
+
     otherDevices.forEach((device, index) => {
       const angle = (index / otherDevices.length) * 2 * Math.PI;
-      device.x = (width / 2) + Math.cos(angle) * radius;
-      device.y = (height / 2) + Math.sin(angle) * radius;
+      device.x = width / 2 + Math.cos(angle) * radius;
+      device.y = height / 2 + Math.sin(angle) * radius;
     });
   };
 
@@ -84,7 +96,10 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-muted/20 rounded-lg overflow-hidden">
+    <div
+      ref={containerRef}
+      className="relative w-full h-full bg-muted/20 rounded-lg overflow-hidden"
+    >
       {/* Network Topology SVG */}
       <svg
         ref={svgRef}
@@ -105,15 +120,19 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
             <polygon points="0 0, 10 3.5, 0 7" />
           </marker>
         </defs>
-        
+
         {/* Connection lines */}
         <g>
           {connections.map((connection) => {
-            const fromDevice = devices.find(d => d.id === connection.fromDeviceId);
-            const toDevice = devices.find(d => d.id === connection.toDeviceId);
-            
+            const fromDevice = devices.find(
+              (d) => d.id === connection.fromDeviceId,
+            );
+            const toDevice = devices.find(
+              (d) => d.id === connection.toDeviceId,
+            );
+
             if (!fromDevice || !toDevice) return null;
-            
+
             return (
               <line
                 key={connection.id}
@@ -121,9 +140,15 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
                 y1={fromDevice.y}
                 x2={toDevice.x}
                 y2={toDevice.y}
-                stroke={connection.status === 'active' ? "hsl(240, 5%, 65%)" : "hsl(240, 5%, 35%)"}
+                stroke={
+                  connection.status === "active"
+                    ? "hsl(240, 5%, 65%)"
+                    : "hsl(240, 5%, 35%)"
+                }
                 strokeWidth="2"
-                strokeDasharray={connection.status === 'active' ? "none" : "5,5"}
+                strokeDasharray={
+                  connection.status === "active" ? "none" : "5,5"
+                }
                 markerEnd="url(#arrowhead)"
                 opacity="0.7"
                 className="network-connection"
@@ -131,29 +156,42 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
             );
           })}
         </g>
-        
+
         {/* Device nodes */}
         <g>
           {devices.map((device) => {
-            const radius = device.isCoordinator ? 30 : device.deviceType === 'server' ? 25 : device.deviceType === 'mobile' ? 20 : 22;
-            
+            const radius = device.isCoordinator
+              ? 30
+              : device.deviceType === "server"
+                ? 25
+                : device.deviceType === "mobile"
+                  ? 20
+                  : 22;
+
             return (
               <g key={device.id} className="network-node">
                 <circle
                   cx={device.x}
                   cy={device.y}
                   r={radius}
-                  fill={device.isCoordinator ? "var(--tailscale-purple)" : getStatusColor(device.status)}
+                  fill={
+                    device.isCoordinator
+                      ? "var(--tailscale-purple)"
+                      : getStatusColor(device.status)
+                  }
                   stroke="white"
                   strokeWidth="3"
                   className="cursor-pointer"
                   onClick={() => handleDeviceClick(device)}
                   style={{
-                    animation: device.status === 'unstable' ? 'pulse 2s infinite' : 'none',
-                    opacity: device.status === 'disconnected' ? 0.5 : 1
+                    animation:
+                      device.status === "unstable"
+                        ? "pulse 2s infinite"
+                        : "none",
+                    opacity: device.status === "disconnected" ? 0.5 : 1,
                   }}
                 />
-                
+
                 {/* Device emoji */}
                 <text
                   x={device.x}
@@ -165,7 +203,7 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
                 >
                   {getDeviceEmoji(device.deviceType, device.isCoordinator)}
                 </text>
-                
+
                 {/* Device label */}
                 <text
                   x={device.x}
@@ -182,7 +220,7 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
           })}
         </g>
       </svg>
-      
+
       {/* Controls */}
       <div className="absolute top-4 right-4 flex flex-col space-y-2">
         <Button variant="outline" size="icon" onClick={handleZoomIn}>
@@ -198,7 +236,7 @@ export function NetworkTopology({ devices, connections, onDeviceClick }: Network
           <RotateCcw className="h-4 w-4" />
         </Button>
       </div>
-      
+
       {/* Legend */}
       <div className="absolute bottom-4 left-4">
         <Card className="p-4">

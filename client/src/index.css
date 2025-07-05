@@ -23,7 +23,7 @@
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
-  
+
   /* Custom Tailscale colors */
   --tailscale-purple: hsl(264, 83%, 57%);
   --connected-green: hsl(158, 64%, 52%);
@@ -69,71 +69,72 @@
     transition: all 0.2s ease-in-out;
     cursor: pointer;
   }
-  
+
   .network-node:hover {
     transform: scale(1.1);
   }
-  
+
   .network-connection {
     transition: stroke-width 0.2s ease-in-out;
   }
-  
+
   .network-connection:hover {
     stroke-width: 3px;
   }
-  
+
   .status-indicator {
     transition: all 0.3s ease-in-out;
   }
-  
+
   .status-connected {
     color: var(--connected-green);
   }
-  
+
   .status-disconnected {
     color: hsl(240, 5%, 65%);
   }
-  
+
   .status-unstable {
     color: var(--warning-yellow);
     animation: pulse 2s infinite;
   }
-  
+
   .bg-tailscale-purple {
     background-color: var(--tailscale-purple);
   }
-  
+
   .text-tailscale-purple {
     color: var(--tailscale-purple);
   }
-  
+
   .bg-connected-green {
     background-color: var(--connected-green);
   }
-  
+
   .text-connected-green {
     color: var(--connected-green);
   }
-  
+
   .bg-warning-yellow {
     background-color: var(--warning-yellow);
   }
-  
+
   .text-warning-yellow {
     color: var(--warning-yellow);
   }
-  
+
   .bg-error-red {
     background-color: var(--error-red);
   }
-  
+
   .text-error-red {
     color: var(--error-red);
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

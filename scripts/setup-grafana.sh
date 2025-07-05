@@ -47,7 +47,7 @@ sudo chown -R 65534:65534 prometheus/
 
 # Build and start services
 echo "🚀 Building and starting services..."
-docker-compose -f docker-compose.grafana.yml up -d
+docker compose -f docker-compose.grafana.yml up -d
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -63,12 +63,12 @@ if [ $? -eq 0 ]; then
     echo "   1. Login to Grafana at http://localhost:3000"
     echo "   2. Datasources are pre-configured (InfluxDB & Prometheus)"
     echo "   3. Dashboard is automatically imported"
-    echo "   4. Metrics are available at http://localhost:5000/metrics"
+    echo "   4. Metrics are available at http://localhost:6000/metrics"
     echo ""
-    echo "🔄 To stop services: docker-compose -f docker-compose.grafana.yml down"
-    echo "🗑️  To remove everything: docker-compose -f docker-compose.grafana.yml down -v"
+    echo "🔄 To stop services: docker compose -f docker-compose.grafana.yml down"
+    echo "🗑️  To remove everything: docker compose -f docker-compose.grafana.yml down -v"
 else
     echo "❌ Failed to start services. Check Docker logs:"
-    echo "   docker-compose -f docker-compose.grafana.yml logs"
+    echo "   docker compose -f docker-compose.grafana.yml logs"
     exit 1
 fi

@@ -119,7 +119,7 @@ export class TailscaleClient {
       os: tailscaleDevice.os,
       status,
       tags: tailscaleDevice.tags || [],
-      isCoordinator: tailscaleDevice.tags?.includes("coordinator") || false,
+      isCoordinator: false, // No coordinator designation needed with full access
     };
   }
 

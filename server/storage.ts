@@ -94,32 +94,28 @@ export class MemStorage implements IStorage {
     this.currentDeviceId = 1;
     this.currentConnectionId = 1;
 
-    // Convert and store devices
-    const coordinatorDevice = tailscaleDevices.find((d) =>
-      d.tags?.includes("coordinator"),
-    );
-    let coordinator: Device | null = null;
-
+    // Convert and store all devices
+    const devices: Device[] = [];
     for (const tailscaleDevice of tailscaleDevices) {
       const deviceData = client.convertToInternalDevice(tailscaleDevice);
       const device = await this.createDevice(deviceData);
-
-      if (device.isCoordinator) {
-        coordinator = device;
-      }
+      devices.push(device);
     }
 
-    // Create connections (simplified hub topology if coordinator exists)
-    if (coordinator) {
-      const otherDevices = Array.from(this.devices.values()).filter(
-        (d) => !d.isCoordinator,
-      );
-      for (const device of otherDevices) {
-        await this.createConnection({
-          fromDeviceId: coordinator.id,
-          toDeviceId: device.id,
-          status: device.status === "connected" ? "active" : "inactive",
-        });
+    // Create mesh-style connections between all devices
+    for (let i = 0; i < devices.length; i++) {
+      for (let j = i + 1; j < devices.length; j++) {
+        const device1 = devices[i];
+        const device2 = devices[j];
+        
+        // Only create connections for online devices
+        if (device1.status === "connected" && device2.status === "connected") {
+          await this.createConnection({
+            fromDeviceId: device1.id,
+            toDeviceId: device2.id,
+            status: "active",
+          });
+        }
       }
     }
 

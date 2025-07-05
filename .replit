@@ -11,6 +11,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
+runButton = "Run Tailscale Dashboard"
 
 [[workflows.workflow]]
 name = "Project"
@@ -29,6 +30,15 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Run Tailscale Dashboard"
+author = 44549366
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
 
 [objectStorage]
 defaultBucketID = "replit-objstore-1d9aacd0-8c1b-4054-a739-9b5461f31945"

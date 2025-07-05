@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - "6000:3001"
+      - "6000:5000"
     environment:
       - NODE_ENV=production
       - TAILSCALE_API_KEY=${TAILSCALE_API_KEY}

@@ -4,7 +4,7 @@ services:
   tailscale-dashboard:
     build: .
     ports:
-      - "6000:3001"
+      - "6000:5000"
     environment:
       - TAILSCALE_API_KEY=${TAILSCALE_API_KEY}
       - TAILSCALE_TAILNET=${TAILSCALE_TAILNET}
@@ -39,7 +39,7 @@ services:
   grafana:
     image: grafana/grafana:10.2.0
     ports:
-      - "3000:3000"
+      - "4000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_INSTALL_PLUGINS=grafana-worldmap-panel,grafana-piechart-panel
